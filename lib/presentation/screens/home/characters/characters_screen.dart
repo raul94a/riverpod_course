@@ -59,7 +59,10 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen>
         itemBuilder: (cntx, index) {
           final character = characters[index];
 
-          return CharacterCard(character: character);
+          return CharacterCard(
+            character: character,
+            position: index,
+          );
         });
   }
 

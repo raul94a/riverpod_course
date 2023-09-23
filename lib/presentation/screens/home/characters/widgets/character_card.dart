@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_course_preview/data/models/rick_and_morty_character.dart';
+import 'package:riverpod_course_preview/presentation/screens/home/characters/controller/characters_controller.dart';
 import 'package:riverpod_course_preview/presentation/styles/colors.dart';
 
 final onPrimaryContainerColor = lightColorScheme.onPrimaryContainer;
@@ -8,18 +11,20 @@ class CharacterCard extends StatelessWidget {
   const CharacterCard({
     super.key,
     required this.character,
+    required this.position,
   });
 
   final RickAndMortyCharacter character;
+  final int position;
 
   @override
   Widget build(BuildContext context) {
     return Card(
+        key: Key('char:${character.id}'),
         color: lightColorScheme.primaryContainer,
         shape: OutlineInputBorder(
             borderRadius: BorderRadius.circular(8.0),
             borderSide: BorderSide(color: lightColorScheme.primaryContainer)),
-        key: Key('char:${character.id}'),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -27,19 +32,21 @@ class CharacterCard extends StatelessWidget {
             const SizedBox(
               width: 10,
             ),
-            _CharacterInformation(character: character)
+            _CharacterInformation(
+              character: character,
+              position: position,
+            )
           ],
         ));
   }
 }
 
 class _CharacterInformation extends StatelessWidget {
-  const _CharacterInformation({
-    super.key,
-    required this.character,
-  });
+  const _CharacterInformation(
+      {super.key, required this.character, required this.position});
 
   final RickAndMortyCharacter character;
+  final int position;
 
   (String, Color) getStatus(String status) {
     if (status == LifeStatus.alive.name) {
@@ -59,7 +66,11 @@ class _CharacterInformation extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _CharacterName(character: character),
-        _AliveStatus(color: color, status: status),
+        _AliveStatus(
+          color: color,
+          status: status,
+          position: position,
+        ),
         _LastKnownLocation(character: character),
         _FirstAppearance(character: character),
       ],
@@ -106,8 +117,8 @@ class _LastKnownLocation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(      crossAxisAlignment: CrossAxisAlignment.start,
-
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(
           height: 16.0,
@@ -120,7 +131,8 @@ class _LastKnownLocation extends StatelessWidget {
           height: 4.0,
         ),
         Text(
-          character.location.name,  overflow: TextOverflow.clip,
+          character.location.name,
+          overflow: TextOverflow.clip,
           maxLines: 1,
           style: TextStyle(
               fontSize: 16,
@@ -142,8 +154,8 @@ class _FirstAppearance extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(      crossAxisAlignment: CrossAxisAlignment.start,
-
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(
           height: 16.0,
@@ -160,40 +172,58 @@ class _FirstAppearance extends StatelessWidget {
           overflow: TextOverflow.clip,
           maxLines: 1,
           style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: onPrimaryContainerColor,),
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: onPrimaryContainerColor,
+          ),
         ),
       ],
     );
   }
 }
 
-class _AliveStatus extends StatelessWidget {
+class _AliveStatus extends ConsumerWidget {
   const _AliveStatus({
     super.key,
     required this.color,
     required this.status,
+    required this.position,
   });
 
   final Color color;
   final String status;
+  final int position;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Icon(
-          Icons.circle,
-          color: color,
-          size: 15,
+        Row(
+          children: [
+            Icon(
+              Icons.circle,
+              color: color,
+              size: 15,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Text(
+              status,
+              style: TextStyle(fontSize: 16, color: onPrimaryContainerColor),
+            )
+          ],
         ),
-        const SizedBox(
-          width: 10,
-        ),
-        Text(
-          status,
-          style: TextStyle(fontSize: 16, color: onPrimaryContainerColor),
+        GestureDetector(
+          onTap: () {
+            HapticFeedback.heavyImpact();
+            ref.read(charactersProvider.notifier).delete(position);
+          },
+          child: Icon(
+            Icons.delete,
+            color: lightColorScheme.error,
+          ),
         )
       ],
     );

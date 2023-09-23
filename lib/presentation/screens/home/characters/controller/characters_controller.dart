@@ -74,4 +74,11 @@ class CharactersNotifier extends StateNotifier<CharactersState> {
         characters: [...state.characters],
         nextPageUrl: charactersPagination.info.next);
   }
+
+  void delete(int position) {
+    final characters = state.characters;
+    characters.removeAt(position);
+
+    state = state.copyWith(characters: [...characters]);
+  }
 }
