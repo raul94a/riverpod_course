@@ -11,6 +11,13 @@ class _LoginCardState extends State<LoginCard> {
   final TextEditingController usernameController = TextEditingController(),
       passwordController = TextEditingController();
   @override
+  void initState() {
+    usernameController.text = 'lgronaverp';
+    passwordController.text = '4a1dAKDv9KB9';
+
+    super.initState();
+  }
+  @override
   void dispose() {
     usernameController.dispose();
     passwordController.dispose();
