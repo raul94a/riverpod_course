@@ -3,7 +3,7 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_course_preview/data/models/user.dart';
-import 'package:riverpod_course_preview/views/shared/providers/repository_provider.dart';
+import 'package:riverpod_course_preview/presentation/shared/providers/repository_provider.dart';
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
   final repositoryService = ref.read(repositoryProvider);

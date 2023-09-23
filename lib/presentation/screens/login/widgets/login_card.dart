@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_course_preview/views/shared/controllers/auth_controller.dart';
-import 'package:riverpod_course_preview/views/shared/providers/repository_provider.dart';
+import 'package:riverpod_course_preview/presentation/screens/home/home_screen.dart';
+import 'package:riverpod_course_preview/presentation/shared/controllers/auth_controller.dart';
+import 'package:riverpod_course_preview/presentation/shared/providers/repository_provider.dart';
 
 class LoginCard extends StatefulWidget {
   const LoginCard({super.key});
@@ -149,7 +150,7 @@ class _LoginButtonState extends ConsumerState<_LoginButton> {
                       widget.passwordController.text);
 
                   Navigator.of(context).push(MaterialPageRoute(
-                      builder: (_) => const Scaffold(body: SizedBox())));
+                      builder: (_) => const HomeScreen()));
                 } catch (err) {
                   ScaffoldMessenger.of(context)
                       .showSnackBar(SnackBar(content: Text('$err')));

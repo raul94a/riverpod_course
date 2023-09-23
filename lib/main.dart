@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
-import 'package:riverpod_course_preview/views/screens/login/login_screen.dart';
-import 'package:riverpod_course_preview/views/styles/colors.dart';
+import 'package:riverpod_course_preview/presentation/screens/login/login_screen.dart';
+import 'package:riverpod_course_preview/presentation/styles/colors.dart';
 
 // esto es para el futuro! para no guardar el token en las prefs
 // y para acceder al token desde cualquier lugar
