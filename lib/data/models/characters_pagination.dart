@@ -34,7 +34,7 @@ class CharactersPagination {
     return CharactersPagination(
       info: Pagination.fromMap(map['info'] as Map<String, dynamic>),
       results: List<RickAndMortyCharacter>.from(
-        (map['results'] as List<int>).map<RickAndMortyCharacter>(
+        (map['results']).map<RickAndMortyCharacter>(
           (x) => RickAndMortyCharacter.fromMap(x as Map<String, dynamic>),
         ),
       ),

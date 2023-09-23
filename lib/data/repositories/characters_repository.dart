@@ -6,11 +6,12 @@ class CharactersRepository {
 
   Future<CharactersPagination> getAll(String token, [String? url]) async {
     bool hasValue = url != null;
-    final uri = Uri.parse(hasValue ? url : baseUrl);
+    final uri = Uri.parse(hasValue ? url : '$baseUrl/character');
     //HEADERS!!!!!!!!!
     //token!!!!!!!!!!!
     final headers = {'Authorization': 'Bearer $token'};
     final data = await get(uri, headers: headers);
+    print(data.body);
     return CharactersPagination.fromJson(data.body);
   }
 }

@@ -57,12 +57,12 @@ class RickAndMortyCharacter {
   factory RickAndMortyCharacter.fromMap(Map<String, dynamic> map) {
     return RickAndMortyCharacter(
       id: map['id'] as int,
-      name: map['name'] as String,
-      type: map['type'] as String,
-      dimension: map['dimension'] as String,
-      residents: List<String>.from((map['residents'] as List<String>)),
+      name: map['name'] ?? '',
+      type: map['type'] ?? '',
+      dimension: map['dimension'] ?? '',
+      residents: map['residents'] == null ? [] : List<String>.from((map['residents'] as List<String>)),
       url: map['url'] as String,
-      created: DateTime.parse(map['created'] as String),
+      created: DateTime.parse(map['created'] ?? DateTime.now().toIso8601String()),
     );
   }
 
