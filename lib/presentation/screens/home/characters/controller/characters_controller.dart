@@ -24,10 +24,12 @@ class CharactersState {
   final List<RickAndMortyCharacter> characters;
   final CharactersUiState uiState;
   final String token;
+  final String status;
   final Pagination? currentPagination;
   CharactersState({
     required this.characters,
     required this.uiState,
+    this.status = 'All',
     this.currentPagination,
     required this.token,
   });
@@ -37,13 +39,22 @@ class CharactersState {
     CharactersUiState? uiState,
     Pagination? currentPagination,
     String? token,
+    String? status,
   }) {
     return CharactersState(
       currentPagination: currentPagination ?? this.currentPagination,
       characters: characters ?? this.characters,
       uiState: uiState ?? this.uiState,
       token: token ?? this.token,
+      status: status ?? this.status,
     );
+  }
+
+  List<RickAndMortyCharacter> getFilteredCharacters() {
+    if (status == 'All') {
+      return characters;
+    }
+    return characters.where((char) => char.status == status).toList();
   }
 }
 
@@ -62,6 +73,10 @@ class CharactersNotifier extends StateNotifier<CharactersState> {
     CharactersUiState uiState = state.uiState;
     uiState.loadingPagination = loading;
     state = state.copyWith(uiState: uiState);
+  }
+
+  void changeFilterStatus(String value) {
+    state = state.copyWith(status: value);
   }
 
   Future<void> getAll() async {
@@ -112,6 +127,7 @@ class CharactersNotifier extends StateNotifier<CharactersState> {
   void delete(int position) {
     final characters = state.characters;
     characters.removeAt(position);
+    print('Removing psoition: $position');
 
     state = state.copyWith(characters: [...characters]);
   }

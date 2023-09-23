@@ -54,7 +54,8 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    final characters = ref.watch(charactersProvider).characters;
+    final characters = ref.watch(
+        charactersProvider.select((value) => value.getFilteredCharacters()));
     return Stack(
       children: [
         Column(
@@ -63,7 +64,8 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen>
               child: ListView.builder(
                   controller: scrollController,
                   itemCount: characters.length,
-                  restorationId: 'restorationChars',
+    addAutomaticKeepAlives: true,
+             
                   itemBuilder: (cntx, index) {
                     final character = characters[index];
 
@@ -104,7 +106,6 @@ class _LoadingPaginationSpinner extends ConsumerWidget {
       );
     }
     return const SizedBox.shrink();
-    
   }
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_course_preview/data/models/rick_and_morty_character.dart';
+import 'package:riverpod_course_preview/presentation/screens/home/characters/character_description_screen.dart';
 import 'package:riverpod_course_preview/presentation/screens/home/characters/controller/characters_controller.dart';
 import 'package:riverpod_course_preview/presentation/styles/colors.dart';
 
@@ -19,25 +20,31 @@ class CharacterCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-        key: Key('char:${character.id}'),
-        color: lightColorScheme.primaryContainer,
-        shape: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8.0),
-            borderSide: BorderSide(color: lightColorScheme.primaryContainer)),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _CardImage(character: character),
-            const SizedBox(
-              width: 10,
-            ),
-            _CharacterInformation(
-              character: character,
-              position: position,
-            )
-          ],
-        ));
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(MaterialPageRoute(
+            builder: (_) => CharacterDescriptionScreen(character: character)));
+      },
+      child: Card(
+          key: Key('char:${character.id}'),
+          color: lightColorScheme.primaryContainer,
+          shape: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8.0),
+              borderSide: BorderSide(color: lightColorScheme.primaryContainer)),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _CardImage(character: character),
+              const SizedBox(
+                width: 10,
+              ),
+              _CharacterInformation(
+                character: character,
+                position: position,
+              )
+            ],
+          )),
+    );
   }
 }
 
@@ -241,9 +248,13 @@ class _CardImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        flex: 1,
+      flex: 1,
+      child: Hero(
+        tag: 'Hero-Character-${character.id}',
         child: ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
-            child: Image.network(character.image)));
+            child: Image.network(character.image)),
+      ),
+    );
   }
 }

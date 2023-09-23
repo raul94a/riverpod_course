@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_course_preview/presentation/screens/home/characters/characters_screen.dart';
@@ -15,6 +17,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   int page = 0;
+  Timer? timer;
   late PageController pageController = PageController(initialPage: page);
   final pages = [
     const CharactersScreen(),
@@ -27,6 +30,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         page = index;
         textFieldController.clear();
       });
+
   String hintText() {
     switch (page) {
       case 0:
@@ -49,20 +53,35 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: TextField(
-        controller: textFieldController,
-        decoration: _textFieldDecoration(),
-        onChanged: (value) {
-          switch (page) {
-            case 0:
-              ref.read(charactersProvider.notifier).search(value);
-              break;
-            case 1:
-              break;
-            default:
-              break;
-          }
-        },
+          title: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            flex: 1,
+            child: TextField(
+              controller: textFieldController,
+              decoration: _textFieldDecoration(),
+              onChanged: (value) {
+                timer?.cancel();
+                timer = Timer(const Duration(milliseconds: 600), () {
+                  switch (page) {
+                    case 0:
+                      ref.read(charactersProvider.notifier).search(value);
+                      break;
+                    case 1:
+                      break;
+                    default:
+                      break;
+                  }
+                });
+              },
+            ),
+          ),
+          const SizedBox(
+            width: 20,
+          ),
+          const StatusFilter()
+        ],
       )),
       body: PageView(
         controller: pageController,
@@ -71,10 +90,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: page,
-        onTap: (indes) {
-          print('set page: $indes');
-          setPage(indes);
-          pageController.jumpToPage(indes);
+        onTap: (index) {
+          print('set page: $index');
+          setPage(index);
+          pageController.jumpToPage(index);
         },
         items: const [
           BottomNavigationBarItem(
@@ -105,5 +124,36 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           Icons.search,
           size: 25,
         ));
+  }
+}
+
+class StatusFilter extends ConsumerWidget {
+  const StatusFilter({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return SizedBox(
+      width: 60,
+      height: 40,
+      child: DropdownButtonFormField<String>(
+          isExpanded: true,
+          dropdownColor: lightColorScheme.primary,
+          style: TextStyle(color: lightColorScheme.primary),
+          value: 'All',
+          items: ['All', 'Alive', 'Dead', 'unknown']
+              .map((e) => DropdownMenuItem<String>(
+                    value: e,
+                    child: Text(
+                      e,
+                      style: TextStyle(color: lightColorScheme.onPrimary),
+                    ),
+                  ))
+              .toList(),
+          onChanged: (value) => ref
+              .read(charactersProvider.notifier)
+              .changeFilterStatus(value ?? 'All')),
+    );
   }
 }
