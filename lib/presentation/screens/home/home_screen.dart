@@ -12,23 +12,30 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int page = 0;
+  late PageController pageController = PageController(initialPage: page);
   final pages = [
     const CharactersScreen(),
     const EpisodesScreen(),
     const LocationsScreen()
   ];
-  setPage(int index) => setState(() => page = index);
+  setPage(int index) => page = index;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const TextField()),
-      body: pages[page],
+      body: PageView(
+        controller: pageController,
+        children: pages,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: page,
         onTap: (indes) {
           print('set page: $indes');
-          setPage(indes);
+          setState(() {
+            setPage(indes);
+            pageController.jumpToPage(indes);
+          });
         },
         items: const [
           BottomNavigationBarItem(
