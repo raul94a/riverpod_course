@@ -11,7 +11,6 @@ import 'package:riverpod_course_preview/presentation/shared/providers/repository
 
 final charactersProvider =
     StateNotifierProvider<CharactersNotifier, CharactersState>((ref) {
-      
   final repositoryService = ref.read(repositoryProvider);
   final token =
       ref.watch(authProvider.select((value) => value.user?.token ?? ''));
@@ -25,21 +24,36 @@ class CharactersState {
   final List<RickAndMortyCharacter> characters;
   final CharactersUiState uiState;
   final String token;
-  CharactersState({
-    required this.characters,
-    required this.uiState,
-    required this.token,
-  });
+  final String? nextPageUrl;
+  CharactersState(
+      {required this.characters,
+      required this.uiState,
+      required this.token,
+      this.nextPageUrl});
 
-  CharactersState copyWith({
-    List<RickAndMortyCharacter>? characters,
-    CharactersUiState? uiState,
-    String? token,
-  }) {
+  CharactersState copyWith(
+      {List<RickAndMortyCharacter>? characters,
+      CharactersUiState? uiState,
+      String? token,
+      String? nextPageUrl}) {
     return CharactersState(
       characters: characters ?? this.characters,
       uiState: uiState ?? this.uiState,
       token: token ?? this.token,
+      nextPageUrl: nextPageUrl ?? this.nextPageUrl,
+    );
+  }
+
+  CharactersState copyWithNextPageUrl(
+      {List<RickAndMortyCharacter>? characters,
+      CharactersUiState? uiState,
+      String? token,
+      String? nextPageUrl}) {
+    return CharactersState(
+      characters: characters ?? this.characters,
+      uiState: uiState ?? this.uiState,
+      token: token ?? this.token,
+      nextPageUrl: nextPageUrl,
     );
   }
 }
@@ -49,11 +63,15 @@ class CharactersNotifier extends StateNotifier<CharactersState> {
 
   CharactersNotifier(super.state, this.repositoryService);
 
-  Future<void> getAll([String? url]) async {
+  Future<void> getAll() async {
+    final url = state.nextPageUrl;
     final charactersPagination =
         await repositoryService.charactersRepository.getAll(state.token, url);
     final characters = charactersPagination.results;
     state.characters.addAll(characters);
-    state = state.copyWith(characters: [...characters]);
+
+    state = state.copyWithNextPageUrl(
+        characters: [...state.characters],
+        nextPageUrl: charactersPagination.info.next);
   }
 }

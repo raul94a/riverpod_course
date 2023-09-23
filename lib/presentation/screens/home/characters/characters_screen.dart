@@ -12,13 +12,40 @@ class CharactersScreen extends ConsumerStatefulWidget {
 
 class _CharactersScreenState extends ConsumerState<CharactersScreen>
     with AutomaticKeepAliveClientMixin {
+  final scrollController = ScrollController();
+  bool canFetch = true;
   @override
   void initState() {
     super.initState();
+    final notifier = ref.read(charactersProvider.notifier);
     final count = ref.read(charactersProvider).characters.length;
     if (count == 0) {
-      ref.read(charactersProvider.notifier).getAll();
+      notifier.getAll();
     }
+
+    scrollController.addListener(() async {
+      final position = scrollController.position;
+      final maxExtent = position.maxScrollExtent;
+      final currentPosition = scrollController.offset;
+      const sensibility = 0.85;
+      final shouldFetchNewPage = currentPosition >= maxExtent * sensibility;
+      if (shouldFetchNewPage && canFetch) {
+        try {
+          canFetch = false;
+          await notifier.getAll();
+        } catch (err) {
+          print(err);
+        } finally {
+          canFetch = true;
+        }
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
@@ -26,6 +53,7 @@ class _CharactersScreenState extends ConsumerState<CharactersScreen>
     super.build(context);
     final characters = ref.watch(charactersProvider).characters;
     return ListView.builder(
+        controller: scrollController,
         itemCount: characters.length,
         restorationId: 'restorationChars',
         itemBuilder: (cntx, index) {
