@@ -1,4 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:riverpod_course_preview/views/shared/controllers/auth_controller.dart';
+import 'package:riverpod_course_preview/views/shared/providers/repository_provider.dart';
 
 class LoginCard extends StatefulWidget {
   const LoginCard({super.key});
@@ -17,6 +22,7 @@ class _LoginCardState extends State<LoginCard> {
 
     super.initState();
   }
+
   @override
   void dispose() {
     usernameController.dispose();
@@ -103,7 +109,7 @@ class _LoginForm extends StatelessWidget {
   }
 }
 
-class _LoginButton extends StatelessWidget {
+class _LoginButton extends ConsumerStatefulWidget {
   const _LoginButton({
     super.key,
     required this.usernameController,
@@ -114,10 +120,17 @@ class _LoginButton extends StatelessWidget {
   final TextEditingController passwordController;
 
   @override
+  ConsumerState<_LoginButton> createState() => _LoginButtonState();
+}
+
+class _LoginButtonState extends ConsumerState<_LoginButton> {
+  bool loading = false;
+  void changeLoadingStatus() => setState(() => loading = !loading);
+  @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     return ElevatedButton(
-        key: key,
+        key: widget.key,
         style: ButtonStyle(
             backgroundColor: MaterialStateProperty.resolveWith(
                 (states) => const Color.fromARGB(225, 105, 76, 174)),
@@ -126,10 +139,28 @@ class _LoginButton extends StatelessWidget {
             shape: MaterialStateProperty.resolveWith((states) =>
                 RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10.0)))),
-        onPressed: () async {
-          Navigator.of(context).push(MaterialPageRoute(
-              builder: (_) => const Scaffold(body: SizedBox())));
-        },
-        child: const Text('Login'));
+        onPressed: loading
+            ? null
+            : () async {
+                changeLoadingStatus();
+                try {
+                  await ref.read(authProvider.notifier).login(
+                      widget.usernameController.text,
+                      widget.passwordController.text);
+
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (_) => const Scaffold(body: SizedBox())));
+                } catch (err) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text('$err')));
+                } finally {
+                  changeLoadingStatus();
+                }
+              },
+        child: loading
+            ? const CircularProgressIndicator(
+                color: Colors.white,
+              )
+            : const Text('Login'));
   }
 }

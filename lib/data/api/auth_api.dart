@@ -9,12 +9,16 @@ class AuthApi {
     final uri = Uri.parse(url);
 
     try {
-      final response = await http.post(uri, body: body);
+      Map<String, String> headers = {'Content-Type': 'application/json'};
+      
+      final response = await http.post(uri, headers: headers, body: body);
+      print(body);
       final statusCode = response.statusCode;
+      print(statusCode);
       if (statusCode == HttpStatus.ok) {
         return jsonDecode(response.body);
       }
-      throw Exception('$statusCode: ${response.reasonPhrase}');
+      throw '$statusCode: ${response.reasonPhrase}';
     } catch (err) {
       throw Exception('$err');
     }
