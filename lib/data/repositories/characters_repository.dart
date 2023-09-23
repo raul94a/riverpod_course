@@ -10,8 +10,17 @@ class CharactersRepository {
     //HEADERS!!!!!!!!!
     //token!!!!!!!!!!!
     final headers = {'Authorization': 'Bearer $token'};
-    final data = await get(uri, headers: headers);
-    print(data.body);
+    final data = await get(uri, headers: headers);;
+    return CharactersPagination.fromJson(data.body);
+  }
+
+  Future<CharactersPagination> searchByName(String token, String str,[String? url]) async {
+    bool hasValue = url != null;
+    final uri = Uri.parse(hasValue ? url : '$baseUrl/character?name=$str');
+    //HEADERS!!!!!!!!!
+    //token!!!!!!!!!!!
+    final headers = {'Authorization': 'Bearer $token'};
+    final data = await get(uri, headers: headers);;
     return CharactersPagination.fromJson(data.body);
   }
 }

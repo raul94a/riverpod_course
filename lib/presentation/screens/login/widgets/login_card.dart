@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_course_preview/presentation/screens/home/home_screen.dart';
 import 'package:riverpod_course_preview/presentation/shared/controllers/auth_controller.dart';
-import 'package:riverpod_course_preview/presentation/shared/providers/repository_provider.dart';
 
 class LoginCard extends StatefulWidget {
   const LoginCard({super.key});

@@ -3,7 +3,7 @@
 
 // 1 estado
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'package:riverpod_course_preview/data/models/pagination.dart';
 import 'package:riverpod_course_preview/data/models/rick_and_morty_character.dart';
 import 'package:riverpod_course_preview/presentation/screens/home/characters/controller/ui_state.dart';
 import 'package:riverpod_course_preview/presentation/shared/controllers/auth_controller.dart';
@@ -24,36 +24,25 @@ class CharactersState {
   final List<RickAndMortyCharacter> characters;
   final CharactersUiState uiState;
   final String token;
-  final String? nextPageUrl;
-  CharactersState(
-      {required this.characters,
-      required this.uiState,
-      required this.token,
-      this.nextPageUrl});
+  final Pagination? currentPagination;
+  CharactersState({
+    required this.characters,
+    required this.uiState,
+    this.currentPagination,
+    required this.token,
+  });
 
-  CharactersState copyWith(
-      {List<RickAndMortyCharacter>? characters,
-      CharactersUiState? uiState,
-      String? token,
-      String? nextPageUrl}) {
+  CharactersState copyWith({
+    List<RickAndMortyCharacter>? characters,
+    CharactersUiState? uiState,
+    Pagination? currentPagination,
+    String? token,
+  }) {
     return CharactersState(
+      currentPagination: currentPagination ?? this.currentPagination,
       characters: characters ?? this.characters,
       uiState: uiState ?? this.uiState,
       token: token ?? this.token,
-      nextPageUrl: nextPageUrl ?? this.nextPageUrl,
-    );
-  }
-
-  CharactersState copyWithNextPageUrl(
-      {List<RickAndMortyCharacter>? characters,
-      CharactersUiState? uiState,
-      String? token,
-      String? nextPageUrl}) {
-    return CharactersState(
-      characters: characters ?? this.characters,
-      uiState: uiState ?? this.uiState,
-      token: token ?? this.token,
-      nextPageUrl: nextPageUrl,
     );
   }
 }
@@ -63,16 +52,61 @@ class CharactersNotifier extends StateNotifier<CharactersState> {
 
   CharactersNotifier(super.state, this.repositoryService);
 
-  Future<void> getAll() async {
-    final url = state.nextPageUrl;
-    final charactersPagination =
-        await repositoryService.charactersRepository.getAll(state.token, url);
-    final characters = charactersPagination.results;
-    state.characters.addAll(characters);
+  void _changeLoadingStatus(bool loading) {
+    CharactersUiState uiState = state.uiState;
+    uiState.loading = loading;
+    state = state.copyWith(uiState: uiState);
+  }
 
-    state = state.copyWithNextPageUrl(
-        characters: [...state.characters],
-        nextPageUrl: charactersPagination.info.next);
+  void _changeLoadingStatusPagination(bool loading) {
+    CharactersUiState uiState = state.uiState;
+    uiState.loadingPagination = loading;
+    state = state.copyWith(uiState: uiState);
+  }
+
+  Future<void> getAll() async {
+    final url = state.currentPagination?.next;
+    if (state.characters.isNotEmpty && url == null) {
+      return;
+    }
+    url == null
+        ? _changeLoadingStatus(true)
+        : _changeLoadingStatusPagination(true);
+    try {
+      final charactersPagination =
+          await repositoryService.charactersRepository.getAll(state.token, url);
+      final characters = charactersPagination.results;
+      state.characters.addAll(characters);
+
+      state = state.copyWith(
+          characters: [...state.characters],
+          currentPagination: charactersPagination.info);
+    } catch (err) {
+      print(err);
+    } finally {
+      url == null
+          ? _changeLoadingStatus(false)
+          : _changeLoadingStatusPagination(false);
+    }
+  }
+
+  Future<void> search(String str) async {
+    state = state.copyWith(characters: []);
+    _changeLoadingStatus(true);
+    try {
+      final charactersPagination = await repositoryService.charactersRepository
+          .searchByName(state.token, str);
+      final characters = charactersPagination.results;
+      state.characters.addAll(characters);
+
+      state = state.copyWith(
+          characters: [...state.characters],
+          currentPagination: charactersPagination.info);
+    } catch (error) {
+      print(error);
+    } finally {
+      _changeLoadingStatus(false);
+    }
   }
 
   void delete(int position) {
