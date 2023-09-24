@@ -38,7 +38,7 @@ class CharacterCard extends StatelessWidget {
               const SizedBox(
                 width: 10,
               ),
-              _CharacterInformation(
+              CharacterInformation(
                 character: character,
                 position: position,
               )
@@ -48,8 +48,8 @@ class CharacterCard extends StatelessWidget {
   }
 }
 
-class _CharacterInformation extends StatelessWidget {
-  const _CharacterInformation(
+class CharacterInformation extends StatelessWidget {
+  const CharacterInformation(
       {super.key, required this.character, required this.position});
 
   final RickAndMortyCharacter character;

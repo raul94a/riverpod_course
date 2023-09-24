@@ -15,7 +15,10 @@ final charactersProvider =
   final token =
       ref.watch(authProvider.select((value) => value.user?.token ?? ''));
   final characterState = CharactersState(
-      characters: [], uiState: CharactersUiState(), token: token);
+      cacheCharacter: {},
+      characters: [],
+      uiState: CharactersUiState(),
+      token: token);
 
   return CharactersNotifier(characterState, repositoryService);
 });
@@ -24,10 +27,12 @@ class CharactersState {
   final List<RickAndMortyCharacter> characters;
   final CharactersUiState uiState;
   final String token;
+  final Map<String, RickAndMortyCharacter> cacheCharacter;
   final String status;
   final Pagination? currentPagination;
   CharactersState({
     required this.characters,
+    required this.cacheCharacter,
     required this.uiState,
     this.status = 'All',
     this.currentPagination,
@@ -38,6 +43,7 @@ class CharactersState {
     List<RickAndMortyCharacter>? characters,
     CharactersUiState? uiState,
     Pagination? currentPagination,
+    Map<String, RickAndMortyCharacter>? cacheCharacter,
     String? token,
     String? status,
   }) {
@@ -46,6 +52,7 @@ class CharactersState {
       characters: characters ?? this.characters,
       uiState: uiState ?? this.uiState,
       token: token ?? this.token,
+      cacheCharacter: cacheCharacter ?? this.cacheCharacter,
       status: status ?? this.status,
     );
   }
@@ -79,6 +86,15 @@ class CharactersNotifier extends StateNotifier<CharactersState> {
     state = state.copyWith(status: value);
   }
 
+  Future<RickAndMortyCharacter> addOneToCache(String str) async {
+    final character =
+        await repositoryService.charactersRepository.getOne(state.token, str);
+    print('Adding to caché: ${character.name}');
+    state.cacheCharacter[character.getUrl()] = character;
+    state = state.copyWith(cacheCharacter: {...state.cacheCharacter});
+    return character;
+  }
+
   Future<void> getAll() async {
     final url = state.currentPagination?.next;
     if (state.characters.isNotEmpty && url == null) {
@@ -92,6 +108,14 @@ class CharactersNotifier extends StateNotifier<CharactersState> {
           await repositoryService.charactersRepository.getAll(state.token, url);
       final characters = charactersPagination.results;
       state.characters.addAll(characters);
+
+      Future.microtask(() {
+        for (final character in characters) {
+          state.cacheCharacter[character.getUrl()] = character;
+        }
+        print('ADDED TO CACHE: ${characters.length} elements');
+        state = state.copyWith(cacheCharacter: {...state.cacheCharacter});
+      });
 
       state = state.copyWith(
           characters: [...state.characters],
@@ -113,6 +137,14 @@ class CharactersNotifier extends StateNotifier<CharactersState> {
           .searchByName(state.token, str);
       final characters = charactersPagination.results;
       state.characters.addAll(characters);
+      Future.microtask(() {
+        for (final character in characters) {
+          state.cacheCharacter[character.getUrl()] = character;
+        }
+        print('ADDED TO CACHE: ${characters.length} elements');
+                state = state.copyWith(cacheCharacter: {...state.cacheCharacter});
+
+      });
 
       state = state.copyWith(
           characters: [...state.characters],

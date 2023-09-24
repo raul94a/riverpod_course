@@ -10,20 +10,20 @@ enum LifeStatus {
   const LifeStatus(this.name);
 }
 
-
 class RickAndMortyCharacter {
-    final int id;
-    final String name;
-    final String status;
-    final String species;
-    final String type;
-    final String gender;
-    final CharacterLocation origin;
-    final CharacterLocation location;
-    final String image;
-    final List<String> episode;
-    final String url;
-    final DateTime created;
+  final int id;
+  final String name;
+  final String status;
+  final String species;
+  final String type;
+  final String gender;
+  final CharacterLocation origin;
+  final CharacterLocation location;
+  final String image;
+  final List<String> episode;
+  final String url;
+  final DateTime created;
+
   RickAndMortyCharacter({
     required this.id,
     required this.name,
@@ -39,7 +39,7 @@ class RickAndMortyCharacter {
     required this.created,
   });
 
-  
+  String getUrl() => 'https://rickandmortyapi.com/api/character/$id';
 
   RickAndMortyCharacter copyWith({
     int? id,
@@ -96,10 +96,13 @@ class RickAndMortyCharacter {
       species: map['species'] ?? '',
       type: map['type'] ?? '',
       gender: map['gender'] ?? '',
-      origin: CharacterLocation.fromMap(map['origin'] as Map<String,dynamic>),
-      location: CharacterLocation.fromMap(map['location'] as Map<String,dynamic>),
+      origin: CharacterLocation.fromMap(map['origin'] as Map<String, dynamic>),
+      location:
+          CharacterLocation.fromMap(map['location'] as Map<String, dynamic>),
       image: map['image'] as String,
-      episode: map['episode'] == null ? [] : List<String>.from((map['episode'] as List<dynamic>)),
+      episode: map['episode'] == null
+          ? []
+          : List<String>.from((map['episode'] as List<dynamic>)),
       url: map['url'],
       created: DateTime.parse(map['created']),
     );
@@ -107,25 +110,24 @@ class RickAndMortyCharacter {
 
   String toJson() => json.encode(toMap());
 
-  factory RickAndMortyCharacter.fromJson(String source) => RickAndMortyCharacter.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory RickAndMortyCharacter.fromJson(String source) =>
+      RickAndMortyCharacter.fromMap(
+          json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() {
     return 'RickAndMortyCharacter(id: $id, name: $name, status: $status, species: $species, type: $type, gender: $gender, origin: $origin, location: $location, image: $image, episode: $episode, url: $url, created: $created)';
   }
-
 }
 
 class CharacterLocation {
-    final String name;
-    final String url;
+  final String name;
+  final String url;
 
-    CharacterLocation({
-        required this.name,
-        required this.url,
-    });
-
-   
+  CharacterLocation({
+    required this.name,
+    required this.url,
+  });
 
   CharacterLocation copyWith({
     String? name,
@@ -153,7 +155,8 @@ class CharacterLocation {
 
   String toJson() => json.encode(toMap());
 
-  factory CharacterLocation.fromJson(String source) => CharacterLocation.fromMap(json.decode(source) as Map<String, dynamic>);
+  factory CharacterLocation.fromJson(String source) =>
+      CharacterLocation.fromMap(json.decode(source) as Map<String, dynamic>);
 
   @override
   String toString() => 'CharacterLocation(name: $name, url: $url)';
@@ -161,13 +164,10 @@ class CharacterLocation {
   @override
   bool operator ==(covariant CharacterLocation other) {
     if (identical(this, other)) return true;
-  
-    return 
-      other.name == name &&
-      other.url == url;
+
+    return other.name == name && other.url == url;
   }
 
   @override
   int get hashCode => name.hashCode ^ url.hashCode;
 }
-
