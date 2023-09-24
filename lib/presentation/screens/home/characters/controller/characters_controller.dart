@@ -39,6 +39,10 @@ class CharactersState {
     required this.token,
   });
 
+  RickAndMortyCharacter getCharacterById(int id) {
+    return characters.firstWhere((element) => element.id == id);
+  }
+
   CharactersState copyWith({
     List<RickAndMortyCharacter>? characters,
     CharactersUiState? uiState,
@@ -142,8 +146,7 @@ class CharactersNotifier extends StateNotifier<CharactersState> {
           state.cacheCharacter[character.getUrl()] = character;
         }
         print('ADDED TO CACHE: ${characters.length} elements');
-                state = state.copyWith(cacheCharacter: {...state.cacheCharacter});
-
+        state = state.copyWith(cacheCharacter: {...state.cacheCharacter});
       });
 
       state = state.copyWith(
@@ -162,5 +165,30 @@ class CharactersNotifier extends StateNotifier<CharactersState> {
     print('Removing psoition: $position');
 
     state = state.copyWith(characters: [...characters]);
+  }
+
+  void changeCharacterName(int id, String value) {
+    int position = state.characters.indexWhere((element) => element.id == id);
+    var character = state.characters[position];
+    character = character.copyWith(name: value);
+    state.characters[position] = character;
+    state = state.copyWith(characters: [...state.characters]);
+  }
+
+  void changeCharacterLocation(int id, String value) {
+    int position = state.characters.indexWhere((element) => element.id == id);
+    var character = state.characters[position];
+    character =
+        character.copyWith(location: character.location.copyWith(name: value));
+    state.characters[position] = character;
+    state = state.copyWith(characters: [...state.characters]);
+  }
+
+  void changeCharacterLifeStatus(int id, String value) {
+    int position = state.characters.indexWhere((element) => element.id == id);
+    var character = state.characters[position];
+    character = character.copyWith(status: value);
+    state.characters[position] = character;
+    state = state.copyWith(characters: [...state.characters]);
   }
 }

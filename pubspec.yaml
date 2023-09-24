@@ -8,6 +8,7 @@ environment:
 
 dependencies:
   cached_network_image: ^3.2.3
+  automatic_animated_list: ^1.1.0
   get_it:
   http:
   flutter_riverpod: ^2.4.0

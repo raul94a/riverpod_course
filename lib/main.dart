@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:get_it/get_it.dart';
 import 'package:riverpod_course_preview/presentation/screens/login/login_screen.dart';
+import 'package:riverpod_course_preview/presentation/shared/controllers/theme_controller.dart';
 import 'package:riverpod_course_preview/presentation/styles/colors.dart';
 
 // esto es para el futuro! para no guardar el token en las prefs
@@ -11,7 +12,6 @@ import 'package:riverpod_course_preview/presentation/styles/colors.dart';
 final serviceLocator = GetIt.instance; // GetIt.I is also valid
 void setUp() {
   serviceLocator.registerSingleton<String>('', instanceName: 'token');
-  
 }
 
 void main() {
@@ -19,13 +19,15 @@ void main() {
   runApp(const ProviderScope(child: MainApp()));
 }
 
-class MainApp extends StatelessWidget {
+class MainApp extends ConsumerWidget {
   const MainApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, ref) {
+    final lightTheme = ref.watch(themeProvider).light;
     return MaterialApp(
-      theme: ThemeData(colorScheme: lightColorScheme),
+      theme: ThemeData(
+          colorScheme: lightTheme ? lightColorScheme : darkColorScheme),
       debugShowCheckedModeBanner: false,
       home: const LoginScreen(),
     );

@@ -6,6 +6,7 @@ import 'package:riverpod_course_preview/presentation/screens/home/characters/cha
 import 'package:riverpod_course_preview/presentation/screens/home/characters/controller/characters_controller.dart';
 import 'package:riverpod_course_preview/presentation/screens/home/episodes/episodes_screen.dart';
 import 'package:riverpod_course_preview/presentation/screens/home/locations/locations_screen.dart';
+import 'package:riverpod_course_preview/presentation/shared/controllers/theme_controller.dart';
 import 'package:riverpod_course_preview/presentation/styles/colors.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -52,6 +53,40 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      drawer: Drawer(
+        child: SafeArea(
+          child: Column(
+            children: [
+              Consumer(builder: (ctx, ref, _) {
+                final lightTheme = ref.watch(themeProvider).light;
+                final icon =
+                    Icon(lightTheme ? Icons.light_mode : Icons.dark_mode);
+                final text = lightTheme ? 'Light Mode' : 'Dark mode';
+                return GestureDetector(
+                  onTap: () {
+                    ref.read(themeProvider).changeStatus();
+                  },
+                  child: Container(
+                    margin: EdgeInsets.all(10.0).copyWith(top: 50.0),
+                    child: Row(
+                      children: [
+                        icon,
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          text,
+                          style: TextStyle(fontSize: 20),
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              })
+            ],
+          ),
+        ),
+      ),
       appBar: AppBar(
           title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -80,7 +115,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           const SizedBox(
             width: 20,
           ),
-          const StatusFilter()
+          StatusSelector(
+              onChanged: (value) => ref
+                  .read(charactersProvider.notifier)
+                  .changeFilterStatus(value ?? 'All'))
         ],
       )),
       body: PageView(
@@ -127,13 +165,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   }
 }
 
-class StatusFilter extends ConsumerWidget {
-  const StatusFilter({
-    super.key,
-  });
-
+class StatusSelector extends StatelessWidget {
+  const StatusSelector({super.key, required this.onChanged});
+  final Function(String?)? onChanged;
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return SizedBox(
       width: 60,
       height: 40,
@@ -151,9 +187,7 @@ class StatusFilter extends ConsumerWidget {
                     ),
                   ))
               .toList(),
-          onChanged: (value) => ref
-              .read(charactersProvider.notifier)
-              .changeFilterStatus(value ?? 'All')),
+          onChanged: onChanged),
     );
   }
 }
