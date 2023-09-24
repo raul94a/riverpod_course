@@ -1,8 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:riverpod_course_preview/presentation/screens/home/characters/controller/characters_controller.dart';
 import 'package:riverpod_course_preview/presentation/screens/home/episodes/controller/episode_controller.dart';
+import 'package:riverpod_course_preview/presentation/screens/home/episodes/widgets/episode_card.dart';
 import 'package:riverpod_course_preview/presentation/styles/colors.dart';
 
 class EpisodesScreen extends ConsumerStatefulWidget {
@@ -69,23 +68,10 @@ class _EpisodesScreenState extends ConsumerState<EpisodesScreen>
                   itemBuilder: (cntx, index) {
                     final episode = episodes[index];
                     var characters = episode.characters;
-
-                    return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 50),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(episode.name),
-                            SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: characters.map((e) {
-                                  return _CharacterAvatarOrPlaceholder(url: e);
-                                }).toList(),
-                              ),
-                            )
-                          ],
-                        ));
+                    return EpisodeCard(
+                      episode: episode,
+                      characters: characters,
+                    );
                   }),
             ),
             // mostrar el spinner
@@ -101,51 +87,6 @@ class _EpisodesScreenState extends ConsumerState<EpisodesScreen>
   bool get wantKeepAlive => true;
 }
 
-class _CharacterAvatarOrPlaceholder extends StatelessWidget {
-  const _CharacterAvatarOrPlaceholder({super.key, required this.url});
-  final String url;
-
-  @override
-  Widget build(BuildContext context) {
-    return Consumer(builder: (ctx, ref, _) {
-      final character = ref.watch(
-          charactersProvider.select((value) => value.cacheCharacter[url]));
-      if (character?.id == 1) {
-        print('RECONSTRUYENDO ID 1');
-      }
-
-      if (character == null) {
-        // 1. Lo buscamos y añadimos al caché
-        ref.read(charactersProvider.notifier).addOneToCache(url);
-        return const CircleAvatar(
-          child: Icon(Icons.person),
-        );
-      }
-      return Container(
-        margin: EdgeInsets.symmetric(horizontal: 2.0),
-        child: GestureDetector(
-          onTap: () => {},
-          child: CircleAvatar(
-            backgroundColor: lightColorScheme.primary,
-            maxRadius: 30,
-            child: CachedNetworkImage(
-              fit: BoxFit.fill,
-              imageBuilder: (context, imageProvider) => Container(
-                margin: EdgeInsets.symmetric(horizontal: 2.0),
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(image: imageProvider)),
-              ),
-              placeholder: (context, url) => Icon(Icons.person),
-              imageUrl: character.image,
-              cacheKey: character.image,
-            ),
-          ),
-        ),
-      );
-    });
-  }
-}
 
 class _LoadingPaginationSpinner extends ConsumerWidget {
   const _LoadingPaginationSpinner({super.key});

@@ -50,7 +50,7 @@ class Episode {
     return <String, dynamic>{
       'id': id,
       'name': name,
-      'airDate': airDate,
+      'air_date': airDate,
       'episode': episode,
       'characters': characters,
       'url': url,
@@ -62,7 +62,7 @@ class Episode {
     return Episode(
       id: map['id'] as int,
       name: map['name'] ?? '',
-      airDate: map['airDate'] ?? '',
+      airDate: map['air_date'] ?? '',
       episode: map['episode'] ?? '',
       characters: List<String>.from((map['characters'])),
       url: map['url'] ?? '',
