@@ -9,7 +9,7 @@ class AuthApi {
     final uri = Uri.parse(url);
 
     try {
-      final response = await http.post(uri, body: body);
+      final response = await http.post(uri, body: body, headers: {'Content-Type': 'application/json'});
       final statusCode = response.statusCode;
       if (statusCode == HttpStatus.ok) {
         return jsonDecode(response.body);
